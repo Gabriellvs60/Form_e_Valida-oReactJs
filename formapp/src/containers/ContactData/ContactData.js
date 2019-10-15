@@ -14,11 +14,19 @@ class ContactData extends Component {
         orderForm: {
             name: { 
                 elementType: 'input',
+                //atributos HTML
                 elementConfig: {
                     type: 'text',
                     placeholder: 'Your Name'
                 },
-                value: ''
+                value: '',
+                //validação - regras
+                validation: {
+                    required: true,
+                },
+                //boolean valid inicia como falso
+                valid:false
+
             },
             street: {
                 elementType: 'input',
@@ -26,7 +34,13 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Street'
                 },
-                value: ''
+                value: '',
+                 //validação - regras
+                 validation: {
+                    required: true,
+                },
+                //boolean valid inicia como falso
+                valid:false
             },
             zipCode: {
                 elementType: 'input',
@@ -34,7 +48,15 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'ZIP Code'
                 },
-                value: ''
+                value: '',
+                 //validação - regras
+                 validation: {
+                    required: true,
+                    minLength: 5,
+                    maxLength: 5
+                },
+                //boolean valid inicia como falso
+                valid:false
             },
             country: {
                 elementType: 'input',
@@ -42,7 +64,13 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Country'
                 },
-                value: ''
+                value: '',
+                 //validação - regras
+                 validation: {
+                    required: true,
+                },
+                //boolean valid inicia como falso
+                valid:false
             },
             email: {
                 elementType: 'input',
@@ -50,7 +78,13 @@ class ContactData extends Component {
                     type: 'email',
                     placeholder: 'Your E-Mail'
                 },
-                value: ''
+                value: '',
+                 //validação - regras
+                 validation: {
+                    required: true,
+                },
+                //boolean valid inicia como falso
+                valid:false
             },
             //combobox
             deliveryMethod: {
@@ -65,6 +99,28 @@ class ContactData extends Component {
             }
         },
         loading: false
+    }
+
+    //esse é um método genérico de validação
+    //com ele, passamos o parametro do tipo de validação que queremos e ele retorna um booleano
+    //podemos validar campo vazio, minimo de caracteres ou maximo
+    checkValidity(value, rules) {
+        let isValid = true;
+        //para validar em cascata, tem que começar true para ir até o fim
+        //se inicia no falso, a validação para, e retornar falso, no primeiro teste, ela não prossegue se for falso
+        if (rules.required) {
+            isValid = value.trim() !== '' && isValid;
+        }
+
+        if (rules.minLength) {
+            isValid = value.length >= rules.minLength && isValid
+        }
+
+        if (rules.maxLength) {
+            isValid = value.length <= rules.maxLength && isValid
+        }
+
+        return isValid;
     }
 
     orderHandler = ( event ) => {
@@ -96,13 +152,15 @@ class ContactData extends Component {
         };
        //Atualiza o clone (updatedOrderForm) depois pega o form do input
         updatedFormElement.value = event.target.value;
+        //passa o valor e o tipo de validação, armazenada e definida no estado
+        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation)
         updatedOrderForm[inputIdentifier] = updatedFormElement;
+        console.log(updatedFormElement);
         //joga o clone atualizado para o form em estado
         this.setState({orderForm: updatedOrderForm});
     }
 
     render () {
-
         const formElementsArray = [];
         for(let key in this.state.orderForm){
             formElementsArray.push({

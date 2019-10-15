@@ -25,7 +25,8 @@ class ContactData extends Component {
                     required: true,
                 },
                 //boolean valid inicia como falso
-                valid:false
+                valid:false,
+                touched: false
 
             },
             street: {
@@ -40,7 +41,8 @@ class ContactData extends Component {
                     required: true,
                 },
                 //boolean valid inicia como falso
-                valid:false
+                valid:false,
+                touched: false
             },
             zipCode: {
                 elementType: 'input',
@@ -56,7 +58,8 @@ class ContactData extends Component {
                     maxLength: 5
                 },
                 //boolean valid inicia como falso
-                valid:false
+                valid:false,
+                touched: false
             },
             country: {
                 elementType: 'input',
@@ -70,7 +73,8 @@ class ContactData extends Component {
                     required: true,
                 },
                 //boolean valid inicia como falso
-                valid:false
+                valid:false,
+                touched: false
             },
             email: {
                 elementType: 'input',
@@ -84,7 +88,8 @@ class ContactData extends Component {
                     required: true,
                 },
                 //boolean valid inicia como falso
-                valid:false
+                valid:false,
+                touched: false
             },
             //combobox
             deliveryMethod: {
@@ -95,9 +100,12 @@ class ContactData extends Component {
                         {value: 'cheapest', displayValue: 'Cheapest'}
                     ]
                 },
-                value: ''
+                value: 'fastest',
+                validation:{},
+                valid: true
             }
         },
+        formIsValid: false,
         loading: false
     }
 
@@ -106,6 +114,11 @@ class ContactData extends Component {
     //podemos validar campo vazio, minimo de caracteres ou maximo
     checkValidity(value, rules) {
         let isValid = true;
+        //retorna true para elementos que não contenham validação
+        //de forma lógica ,aqueles que o validation é vazio
+        if(!rules){
+            return true;
+        }
         //para validar em cascata, tem que começar true para ir até o fim
         //se inicia no falso, a validação para, e retornar falso, no primeiro teste, ela não prossegue se for falso
         if (rules.required) {
@@ -153,11 +166,20 @@ class ContactData extends Component {
        //Atualiza o clone (updatedOrderForm) depois pega o form do input
         updatedFormElement.value = event.target.value;
         //passa o valor e o tipo de validação, armazenada e definida no estado
-        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation)
+        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+        updatedFormElement.touched = true;
         updatedOrderForm[inputIdentifier] = updatedFormElement;
         console.log(updatedFormElement);
+        
+        //esse bloco gera um booleano que nos permite habilitar e desabilitar o botão order
+        let formIsValid = true;
+        for(let inputIdentifier in updatedOrderForm){
+            //percorre os itens para determinar se o form é válido ou não
+          formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;  
+        }
+        
         //joga o clone atualizado para o form em estado
-        this.setState({orderForm: updatedOrderForm});
+        this.setState({orderForm: updatedOrderForm, formIsValid : formIsValid});
     }
 
     render () {
@@ -176,12 +198,16 @@ class ContactData extends Component {
                     elementType={formElement.config.elementType}
                     elementConfig={formElement.config.elementConfig}
                     value={formElement.config.value}
+                    invalid={!formElement.config.valid}
+                    shouldValidate={formElement.config.validation}
+                    touched={formElement.config.touched}
                     //passa o evento do próprio React (event)
                     //passa o id que é o nome do state (country,name,email)
                     changed={(event) => this.inputChangedHandler(event,formElement.id)}
                     />
                 ))}
-                <Button btnType="Success" >ORDER</Button>
+{/*                 //disabled é true se o form nao for valido
+ */}                <Button btnType="Success" disabled={!this.state.formIsValid} >ORDER</Button>
             </form>
             );
               if ( this.state.loading ) {

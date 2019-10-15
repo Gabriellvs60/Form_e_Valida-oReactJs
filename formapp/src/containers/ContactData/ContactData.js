@@ -7,6 +7,9 @@ import classes from './ContactData.css';
 
 
 class ContactData extends Component {
+    //para adicionar um novo elemento ao form, é só adicionar o estado com o tipo
+    //configurar e assinar o valor
+    //Assim é facil de adicionar, excluir ou configurar um novo input
     state = {
         orderForm: {
             name: { 
@@ -68,26 +71,33 @@ class ContactData extends Component {
         event.preventDefault();
         this.setState( { loading: true } );
         const formData = {};
+        //formElementIdentifier é o email,country, etc
+        //usando um for para percorrer os elementos de orderForm
         for (let formElementIdentifier in this.state.orderForm) {
             formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value;
         }
         const order = {
-            ingredients: this.props.ingredients,
-            price: this.props.price,
             orderData: formData
         }
+        //trecho onde enviamos os dados pelo axios
+        alert("Enviou")
+        console.log(order);
        
     }
 
     inputChangedHandler = (event, inputIdentifier) => {
+        //clona todo o estado e joga numa const
         const updatedOrderForm = {
             ...this.state.orderForm
         };
+        //pega o form atualizado
         const updatedFormElement = { 
             ...updatedOrderForm[inputIdentifier]
         };
+       //Atualiza o clone (updatedOrderForm) depois pega o form do input
         updatedFormElement.value = event.target.value;
         updatedOrderForm[inputIdentifier] = updatedFormElement;
+        //joga o clone atualizado para o form em estado
         this.setState({orderForm: updatedOrderForm});
     }
 
@@ -101,18 +111,19 @@ class ContactData extends Component {
             })
         }
         let form = (
-            <form>
-                <Input elementType="..." elementConfig="..." value="..."/>
+            <form onSubmit={this.orderHandler}>
                 {formElementsArray.map(formElement =>(
                     <Input 
                     key={formElement.id}
                     elementType={formElement.config.elementType}
                     elementConfig={formElement.config.elementConfig}
                     value={formElement.config.value}
-                    changed={() => this.inputChangedHandler()}
+                    //passa o evento do próprio React (event)
+                    //passa o id que é o nome do state (country,name,email)
+                    changed={(event) => this.inputChangedHandler(event,formElement.id)}
                     />
                 ))}
-                <Button btnType="Success" clicked={this.orderHandler}>ORDER</Button>
+                <Button btnType="Success" >ORDER</Button>
             </form>
             );
               if ( this.state.loading ) {
